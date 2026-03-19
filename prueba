@@ -1,0 +1,13 @@
+// demo golden retriever
+HUESO pollito = 19;
+HUESO paseos = 4;
+HUESO total = pollito + paseos * 2;
+
+CORREA nombre = "Max";
+CORREA texto = "Golden: " + nombre;
+
+LADRA(texto);
+LADRA(total);
+
+pollito = pollito - 2;
+LADRA(pollito);
