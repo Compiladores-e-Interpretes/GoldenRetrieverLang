@@ -1,13 +1,35 @@
-// demo golden retriever
-HUESO pollito = 19;
-HUESO paseos = 4;
-HUESO total = pollito + paseos * 2;
-
+// Prueba de fuego: 3 niveles de ambito + shadowing
+HUESO energia = 100;
 CORREA nombre = "Max";
-CORREA texto = "Golden: " + nombre;
 
-LADRA(texto);
-LADRA(total);
+LADRA(energia);   // 100 (global)
+LADRA(nombre);    // Max (global)
 
-pollito = pollito - 2;
-LADRA(pollito);
+{
+	HUESO energia = 70;            // shadowing nivel 1
+	CORREA estado = "Patio";
+	LADRA(energia);                // 70
+	LADRA(estado);                 // Patio
+
+	{
+		HUESO energia = 40;        // shadowing nivel 2
+		HUESO paseos = 3;
+		HUESO total = energia + paseos * 10;
+		LADRA(energia);            // 40
+		LADRA(total);              // 70
+
+		{
+			HUESO energia = 10;    // shadowing nivel 3
+			CORREA estado = "Parque";  // shadowing local del string
+			LADRA(energia);        // 10
+			LADRA(estado);         // Parque
+		}
+
+		LADRA(energia);            // 40 (se recupera nivel 2)
+		LADRA(estado);             // Patio (estado del nivel 1)
+	}
+
+	LADRA(energia);                // 70
+}
+
+LADRA(energia);                    // 100 (global intacto)

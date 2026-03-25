@@ -1,4 +1,4 @@
-%option noyywrap yylineno
+%option noyywrap yylineno noinput nounput
 
 %{
 #include <stdio.h>
@@ -73,6 +73,8 @@ CADENA     \"([^\"\\]|\\.)*\"
 "="                           { return '='; }
 "("                           { return '('; }
 ")"                           { return ')'; }
+"{"                           { return '{'; }
+"}"                           { return '}'; }
 ";"                           { return ';'; }
 
 "//"[^\n]*                   { /* comentario de linea */ }

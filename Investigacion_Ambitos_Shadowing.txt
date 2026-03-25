@@ -1,0 +1,97 @@
+Desafio de Investigacion: Gestion de Ambitos y Shadowing
+
+Contexto rapido
+Este cambio mueve el lenguaje de una tabla unica a una pila de ambitos. La idea suena simple al inicio, pero al implementarla aparecen detalles finos: colisiones por nivel, vida util de variables y reaprovechamiento de memoria cuando un bloque termina.
+
+------------------------------------------------------------
+1) Reporte de Colisiones
+Pregunta: Que pasa si alguien declara int x e int x en el mismo nivel?
+------------------------------------------------------------
+
+Comportamiento implementado
+- El compilador revisa SOLO el ambito actual al declarar.
+- Si el identificador ya existe en ese mismo nivel, se rechaza la declaracion.
+- Resultado: error de compilacion con mensaje de variable repetida en el nivel actual.
+
+Ejemplo que falla (mismo nivel)
+{
+    HUESO x = 10;
+    HUESO x = 20;   // Error: repetida en este mismo ambito
+}
+
+Por que se hace asi
+- Evita ambiguedad local.
+- Mantiene el codigo legible: en un mismo bloque no hay dos nombres iguales peleando por prioridad.
+
+Caso que SI es valido (niveles distintos)
+HUESO x = 1;
+{
+    HUESO x = 2;    // Shadowing permitido
+    LADRA(x);       // Imprime 2
+}
+LADRA(x);           // Imprime 1
+
+Lectura practica
+Dentro del bloque interno, manda la x interna. Al salir, la x interna desaparece y vuelve a mandar la global. Es el comportamiento esperado en lenguajes con alcance lexico por bloques.
+
+------------------------------------------------------------
+2) Analisis de Memoria (offset)
+Pregunta: Que ocurre con el offset de una variable cuando se cierra el ambito?
+------------------------------------------------------------
+
+Modelo aplicado
+- Cada variable obtiene un offset al declararse.
+- Cada scope guarda un offset_base (marca de inicio).
+- Al cerrar el scope:
+  1) Se liberan los valores del scope que muere.
+  2) El contador de offsets vuelve a offset_base.
+
+Traduccion al dia a dia
+Piensa en una mochila con compartimentos:
+- Entras a un bloque: abres compartimento nuevo.
+- Guardas variables: ocupan espacio con offset propio.
+- Sales del bloque: vacias ese compartimento completo.
+- El espacio queda disponible para el siguiente bloque.
+
+Mini traza
+- Scope global abre con offset_base = 0
+- Declaras global a -> offset 0
+- Entras a bloque A -> offset_base = 4
+- Declaras b -> offset 4
+- Entras a bloque B -> offset_base = 8
+- Declaras c -> offset 8
+- Sales de B -> c se libera, next_offset regresa a 8
+- Sales de A -> b se libera, next_offset regresa a 4
+
+Que ganamos
+- Vida de variables bien definida.
+- Espacio temporal recuperable por bloque.
+- Comportamiento consistente con marcos de activacion por alcance.
+
+------------------------------------------------------------
+3) Prueba de Fuego (3 niveles)
+------------------------------------------------------------
+
+Archivo de prueba usado: prueba
+
+Resumen del escenario
+- Global: energia = 100
+- Nivel 1: energia = 70
+- Nivel 2: energia = 40
+- Nivel 3: energia = 10
+
+Salida esperada relevante
+100
+70
+40
+10
+40
+70
+100
+
+Lectura
+Cada bloque interno tapa (shadowing) la variable externa con el mismo nombre. Al cerrar cada bloque, el valor visible vuelve al nivel anterior, sin mezclar datos.
+
+------------------------------------------------------------
+Cierre tecnico
+La pila de scopes resuelve visibilidad y shadowing de forma predecible. El parser abre ambito con { y lo cierra con }. El lookup busca desde el tope hacia abajo. Esa combinacion produce el comportamiento correcto en bloques anidados y evita colisiones en el mismo nivel.

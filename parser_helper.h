@@ -4,6 +4,8 @@
 #include "symbols.h"
 
 void helper_fail(const char* msg);
+void enter_scope_checked(void);
+void exit_scope_checked(void);
 void declare_variable_checked(const char* name, ValueType expected_type, Value value);
 void assign_variable_checked(const char* name, Value value);
 Value variable_value_checked(const char* name);

@@ -12,6 +12,21 @@ void helper_fail(const char* msg) {
     exit(1);
 }
 
+void enter_scope_checked(void) {
+    if (!push_scope()) {
+        helper_fail("No se pudo abrir un nuevo ambito");
+    }
+}
+
+void exit_scope_checked(void) {
+    if (current_scope_depth() <= 0) {
+        helper_fail("No se puede cerrar el ambito global");
+    }
+    if (!pop_scope()) {
+        helper_fail("No se pudo cerrar el ambito actual");
+    }
+}
+
 void declare_variable_checked(const char* name, ValueType expected_type, Value value) {
     if (!declare_symbol(name, expected_type, value)) {
         free_value(value);

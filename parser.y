@@ -54,6 +54,14 @@ statement:
     {
         print_value_checked($3);
     }
+    | '{'
+    {
+        enter_scope_checked();
+    }
+    statements '}'
+    {
+        exit_scope_checked();
+    }
 ;
 
 expr:
@@ -113,6 +121,10 @@ void yyerror(const char* s) {
 }
 
 int main(void) {
+    if (!init_symbol_stack()) {
+        fprintf(stderr, "Error: no se pudo crear el ambito global\n");
+        return 1;
+    }
     int result = yyparse();
     cleanup_symbols();
     return result;
