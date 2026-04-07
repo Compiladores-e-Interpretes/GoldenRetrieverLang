@@ -15,8 +15,8 @@ parser.tab.c parser.tab.h: parser.y
 lex.yy.c: lexer.l parser.tab.h
 	$(FLEX) lexer.l
 
-$(TARGET): parser.tab.c lex.yy.c parser_helper.c symbols.c
-	$(CC) $(CFLAGS) $(LEX_CFLAGS) -o $(TARGET) parser.tab.c lex.yy.c parser_helper.c symbols.c
+$(TARGET): parser.tab.c lex.yy.c parser_helper.c symbols.c ast.c interpreter.c
+	$(CC) $(CFLAGS) $(LEX_CFLAGS) -o $(TARGET) parser.tab.c lex.yy.c parser_helper.c symbols.c ast.c interpreter.c
 
 run: $(TARGET)
 	./$(TARGET) < prueba

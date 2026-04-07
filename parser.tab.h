@@ -42,32 +42,35 @@
      HUESO = 258,
      CORREA = 259,
      LADRA = 260,
-     ID = 261,
-     STRING = 262,
-     NUMBER = 263
+     RETORNA = 261,
+     ID = 262,
+     STRING = 263,
+     NUMBER = 264
    };
 #endif
 /* Tokens.  */
 #define HUESO 258
 #define CORREA 259
 #define LADRA 260
-#define ID 261
-#define STRING 262
-#define NUMBER 263
+#define RETORNA 261
+#define ID 262
+#define STRING 263
+#define NUMBER 264
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 12 "parser.y"
+#line 16 "parser.y"
 {
     int ival;
     char* sval;
-    Value value;
+    ValueType vtype;
+    void* ptr;
 }
 /* Line 1529 of yacc.c.  */
-#line 71 "parser.tab.h"
+#line 74 "parser.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

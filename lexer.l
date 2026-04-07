@@ -61,6 +61,7 @@ CADENA     \"([^\"\\]|\\.)*\"
 "HUESO"                      { return HUESO; }
 "CORREA"                     { return CORREA; }
 "LADRA"                      { return LADRA; }
+"RETORNA"                    { return RETORNA; }
 
 {ENTERO}                      { yylval.ival = atoi(yytext); return NUMBER; }
 {CADENA}                      { yylval.sval = unescape_string(yytext); return STRING; }
