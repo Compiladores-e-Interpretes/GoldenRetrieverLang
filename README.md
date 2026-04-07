@@ -44,16 +44,3 @@ Golden: Max
 - Comentarios: `//` y `/* ... */`
 - Operaciones: `+`, `-`, `*`, `/` para enteros y `+` para concatenar strings
 
-## Subir a GitHub
-1. Crea un repositorio nuevo en GitHub, por ejemplo `golden-retriever-lang`.
-2. En terminal, dentro de esta carpeta:
-```bash
-git init
-git add .
-git commit -m "Entrega: GoldenRetrieverLang en C/Flex"
-git branch -M main
-git remote add origin https://github.com/TU_USUARIO/golden-retriever-lang.git
-git push -u origin main
-```
-3. Entrega el enlace del repositorio.
-# GoldenRetrieverLang
