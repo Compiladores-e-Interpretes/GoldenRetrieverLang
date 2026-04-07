@@ -256,7 +256,6 @@ static ExecResult exec_statement(ASTNode* node, int in_function) {
             return nested;
         }
         case AST_FUNC_DECL:
-            register_function(node);
             break;
         case AST_RETURN:
             if (!in_function) {
