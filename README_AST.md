@@ -5,3 +5,6 @@ AST y funciones en GoldenRetrieverLang
 - Las funciones usan `RETORNA expr;` para devolver un valor.
 - El scope usa shadowing por pila de ambitos: una variable local oculta la externa.
 - La sintaxis base sigue siendo la del proyecto, con `HUESO`, `CORREA` y `LADRA`.
+- Condicionales disponibles: `IF/ELIF/ELSE` y `SI/SINO_SI/SINO`.
+- Entrada por teclado: `OLFATEA_HUESO()` y `OLFATEA_CORREA()`.
+- Comparaciones disponibles: `==`, `!=`, `<`, `<=`, `>`, `>=`.

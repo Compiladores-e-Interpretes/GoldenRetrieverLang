@@ -1,0 +1,37 @@
+LADRA("Que quieres hacer?");
+LADRA("1: Suma");
+LADRA("2: Resta");
+LADRA("3: Division");
+LADRA("4: Multiplicacion");
+
+HUESO opcion = OLFATEA_HUESO();
+
+LADRA("Ingresa el primer numero:");
+HUESO a = OLFATEA_HUESO();
+
+LADRA("Ingresa el segundo numero:");
+HUESO b = OLFATEA_HUESO();
+
+IF (opcion == 1) {
+    HUESO sum = a + b;
+    LADRA("La suma total es:");
+    LADRA(sum);
+} ELIF (opcion == 2) {
+    HUESO res = a - b;
+    LADRA("La resta total es:");
+    LADRA(res);
+} ELIF (opcion == 3) {
+    IF (b == 0) {
+        LADRA("No se puede dividir entre cero");
+    } ELSE {
+        HUESO div = a / b;
+        LADRA("La division total es:");
+        LADRA(div);
+    }
+} ELIF (opcion == 4) {
+    HUESO mul = a * b;
+    LADRA("La multiplicacion total es:");
+    LADRA(mul);
+} ELSE {
+    LADRA("Opcion no valida");
+}

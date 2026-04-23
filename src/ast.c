@@ -87,6 +87,20 @@ ASTNode* ast_make_print(ASTNode* expr) {
     return node;
 }
 
+ASTNode* ast_make_if(ASTNode* condition, ASTNode* then_branch, ASTNode* else_branch) {
+    ASTNode* node = ast_alloc(AST_IF);
+    node->as.if_stmt.condition = condition;
+    node->as.if_stmt.then_branch = then_branch;
+    node->as.if_stmt.else_branch = else_branch;
+    return node;
+}
+
+ASTNode* ast_make_input(ValueType input_type) {
+    ASTNode* node = ast_alloc(AST_INPUT);
+    node->as.input.input_type = input_type;
+    return node;
+}
+
 ASTNode* ast_make_func_decl(ValueType return_type, char* name, ASTParamList* params, ASTNode* body) {
     ASTNode* node = ast_alloc(AST_FUNC_DECL);
     int i;
@@ -274,6 +288,13 @@ void ast_free(ASTNode* node) {
             break;
         case AST_PRINT:
             ast_free(node->as.print_stmt.expr);
+            break;
+        case AST_IF:
+            ast_free(node->as.if_stmt.condition);
+            ast_free(node->as.if_stmt.then_branch);
+            ast_free(node->as.if_stmt.else_branch);
+            break;
+        case AST_INPUT:
             break;
         case AST_FUNC_DECL:
             free(node->as.func_decl.name);

@@ -9,6 +9,8 @@ typedef enum {
     AST_VAR_DECL,
     AST_ASSIGN,
     AST_PRINT,
+    AST_IF,
+    AST_INPUT,
     AST_FUNC_DECL,
     AST_RETURN,
     AST_INT,
@@ -22,7 +24,13 @@ typedef enum {
     OP_ADD = 0,
     OP_SUB,
     OP_MUL,
-    OP_DIV
+    OP_DIV,
+    OP_EQ,
+    OP_NE,
+    OP_LT,
+    OP_LE,
+    OP_GT,
+    OP_GE
 } ASTOperator;
 
 typedef struct ASTNode ASTNode;
@@ -59,6 +67,14 @@ struct ASTNode {
         struct {
             ASTNode* expr;
         } print_stmt;
+        struct {
+            ASTNode* condition;
+            ASTNode* then_branch;
+            ASTNode* else_branch;
+        } if_stmt;
+        struct {
+            ValueType input_type;
+        } input;
         struct {
             ValueType return_type;
             char* name;
@@ -98,6 +114,8 @@ ASTNode* ast_make_scope(ASTNode* body);
 ASTNode* ast_make_var_decl(ValueType declared_type, char* name, ASTNode* expr);
 ASTNode* ast_make_assign(char* name, ASTNode* expr);
 ASTNode* ast_make_print(ASTNode* expr);
+ASTNode* ast_make_if(ASTNode* condition, ASTNode* then_branch, ASTNode* else_branch);
+ASTNode* ast_make_input(ValueType input_type);
 ASTNode* ast_make_func_decl(ValueType return_type, char* name, ASTParamList* params, ASTNode* body);
 ASTNode* ast_make_return(ASTNode* expr);
 ASTNode* ast_make_int(int value);

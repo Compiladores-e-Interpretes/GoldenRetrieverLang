@@ -1,7 +1,7 @@
 CC = gcc
 FLEX = flex
 BISON = bison
-CFLAGS = -Wall -Wextra -std=c11
+CFLAGS = -Wall -Wextra -std=c11 -Isrc/headers -Isrc
 LEX_CFLAGS = -Wno-sign-compare
 TARGET = golden
 
@@ -15,17 +15,19 @@ parser.tab.c parser.tab.h: parser.y
 lex.yy.c: lexer.l parser.tab.h
 	$(FLEX) lexer.l
 
-$(TARGET): parser.tab.c lex.yy.c parser_helper.c symbols.c ast.c interpreter.c
-	$(CC) $(CFLAGS) $(LEX_CFLAGS) -o $(TARGET) parser.tab.c lex.yy.c parser_helper.c symbols.c ast.c interpreter.c
+SRC = src/ast.c src/interpreter.c src/parser_helper.c src/symbols.c
+
+$(TARGET): parser.tab.c lex.yy.c $(SRC)
+	$(CC) $(CFLAGS) $(LEX_CFLAGS) -o $(TARGET) parser.tab.c lex.yy.c $(SRC)
 
 run: $(TARGET)
-	./$(TARGET) < prueba
+	@printf "Luna\n7\n" | ./$(TARGET) prueba
 
 test: $(TARGET)
 	@tmp_out=$$(mktemp); \
 	tmp_exp=$$(mktemp); \
-	./$(TARGET) < prueba > "$$tmp_out"; \
-	printf "100\nMax\n70\nPatio\n40\n70\n10\nParque\n40\nPatio\n70\n100\n" > "$$tmp_exp"; \
+	printf "Luna\n7\n" | ./$(TARGET) prueba > "$$tmp_out"; \
+	printf "100\nMax\n70\nPatio\n40\n70\n10\nParque\n40\nPatio\n70\n100\nLuna\n7\n" > "$$tmp_exp"; \
 	if diff -u "$$tmp_exp" "$$tmp_out"; then \
 		echo "Test shadowing OK"; \
 	else \

@@ -62,6 +62,14 @@ CADENA     \"([^\"\\]|\\.)*\"
 "CORREA"                     { return CORREA; }
 "LADRA"                      { return LADRA; }
 "RETORNA"                    { return RETORNA; }
+"IF"                         { return IF; }
+"ELIF"                       { return ELIF; }
+"ELSE"                       { return ELSE; }
+"SI"                         { return IF; }
+"SINO_SI"                    { return ELIF; }
+"SINO"                       { return ELSE; }
+"OLFATEA_HUESO"              { return OLFATEA_HUESO; }
+"OLFATEA_CORREA"             { return OLFATEA_CORREA; }
 
 {ENTERO}                      { yylval.ival = atoi(yytext); return NUMBER; }
 {CADENA}                      { yylval.sval = unescape_string(yytext); return STRING; }
@@ -71,6 +79,12 @@ CADENA     \"([^\"\\]|\\.)*\"
 "-"                           { return '-'; }
 "*"                           { return '*'; }
 "/"                           { return '/'; }
+"=="                          { return EQ; }
+"!="                          { return NE; }
+"<="                          { return LE; }
+">="                          { return GE; }
+"<"                           { return LT; }
+">"                           { return GT; }
 "="                           { return '='; }
 "("                           { return '('; }
 ")"                           { return ')'; }

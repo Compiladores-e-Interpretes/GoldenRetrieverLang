@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "parser_helper.h"
 #include "symbols.h"
@@ -113,6 +114,9 @@ static void free_functions(void) {
 static Value eval_expr(ASTNode* node);
 static ExecResult exec_statement(ASTNode* node, int in_function);
 static ExecResult exec_block(ASTNode* block, int in_function);
+static ExecResult exec_if(ASTNode* node, int in_function);
+static Value eval_input(ValueType input_type);
+static Value eval_compare(ASTOperator op, Value left, Value right);
 
 static Value eval_call(ASTNode* call_node) {
     FunctionDef* fn;
@@ -168,6 +172,8 @@ static Value eval_expr(ASTNode* node) {
             return make_string(xstrdup_local(node->as.string_lit.value));
         case AST_VAR:
             return variable_value_checked(node->as.var_ref.name);
+        case AST_INPUT:
+            return eval_input(node->as.input.input_type);
         case AST_FUNC_CALL:
             return eval_call(node);
         case AST_BINOP: {
@@ -183,6 +189,13 @@ static Value eval_expr(ASTNode* node) {
                     return mul_values_checked(left, right);
                 case OP_DIV:
                     return div_values_checked(left, right);
+                case OP_EQ:
+                case OP_NE:
+                case OP_LT:
+                case OP_LE:
+                case OP_GT:
+                case OP_GE:
+                    return eval_compare(node->as.binary.op, left, right);
             }
             break;
         }
@@ -194,11 +207,141 @@ static Value eval_expr(ASTNode* node) {
     return make_int(0);
 }
 
+static Value eval_compare(ASTOperator op, Value left, Value right) {
+    int result = 0;
+
+    if (left.type != TYPE_INT || right.type != TYPE_INT) {
+        free_value(left);
+        free_value(right);
+        helper_fail("Comparacion solo para enteros");
+    }
+
+    switch (op) {
+        case OP_EQ:
+            result = (left.int_value == right.int_value);
+            break;
+        case OP_NE:
+            result = (left.int_value != right.int_value);
+            break;
+        case OP_LT:
+            result = (left.int_value < right.int_value);
+            break;
+        case OP_LE:
+            result = (left.int_value <= right.int_value);
+            break;
+        case OP_GT:
+            result = (left.int_value > right.int_value);
+            break;
+        case OP_GE:
+            result = (left.int_value >= right.int_value);
+            break;
+        default:
+            break;
+    }
+
+    free_value(left);
+    free_value(right);
+    return make_int(result);
+}
+
+static char* read_input_line(void) {
+    char buffer[1024];
+    size_t len;
+
+    if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
+        helper_fail("No se pudo leer entrada");
+    }
+
+    len = strlen(buffer);
+    while (len > 0 && (buffer[len - 1] == '\n' || buffer[len - 1] == '\r')) {
+        buffer[len - 1] = '\0';
+        len--;
+    }
+
+    return xstrdup_local(buffer);
+}
+
+static Value eval_input(ValueType input_type) {
+    char* line = read_input_line();
+
+    if (input_type == TYPE_STRING) {
+        return make_string(line);
+    }
+
+    {
+        char* start = line;
+        char* end = NULL;
+        long value;
+
+        while (*start != '\0' && isspace((unsigned char)*start)) {
+            start++;
+        }
+
+        value = strtol(start, &end, 10);
+        if (end == start) {
+            free(line);
+            helper_fail("Entrada HUESO invalida");
+        }
+
+        while (*end != '\0' && isspace((unsigned char)*end)) {
+            end++;
+        }
+
+        if (*end != '\0') {
+            free(line);
+            helper_fail("Entrada HUESO invalida");
+        }
+
+        free(line);
+        return make_int((int)value);
+    }
+}
+
 static ExecResult make_exec_result(int has_return, Value value) {
     ExecResult result;
     result.has_return = has_return;
     result.value = value;
     return result;
+}
+
+static ExecResult exec_if(ASTNode* node, int in_function) {
+    Value cond = eval_expr(node->as.if_stmt.condition);
+    int truthy;
+
+    if (cond.type != TYPE_INT) {
+        free_value(cond);
+        helper_fail("Condicion debe ser HUESO");
+    }
+
+    truthy = cond.int_value != 0;
+    free_value(cond);
+
+    if (truthy) {
+        ExecResult result;
+        enter_scope_checked();
+        result = exec_block(node->as.if_stmt.then_branch, in_function);
+        exit_scope_checked();
+        return result;
+    }
+
+    if (node->as.if_stmt.else_branch == NULL) {
+        return make_exec_result(0, make_int(0));
+    }
+
+    if (node->as.if_stmt.else_branch->type == AST_BLOCK) {
+        ExecResult result;
+        enter_scope_checked();
+        result = exec_block(node->as.if_stmt.else_branch, in_function);
+        exit_scope_checked();
+        return result;
+    }
+
+    if (node->as.if_stmt.else_branch->type == AST_IF) {
+        return exec_if(node->as.if_stmt.else_branch, in_function);
+    }
+
+    helper_fail("Else invalido");
+    return make_exec_result(0, make_int(0));
 }
 
 static ExecResult exec_block(ASTNode* block, int in_function) {
@@ -248,6 +391,8 @@ static ExecResult exec_statement(ASTNode* node, int in_function) {
             print_value_checked(value);
             break;
         }
+        case AST_IF:
+            return exec_if(node, in_function);
         case AST_SCOPE: {
             ExecResult nested;
             enter_scope_checked();

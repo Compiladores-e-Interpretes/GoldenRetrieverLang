@@ -43,9 +43,20 @@
      CORREA = 259,
      LADRA = 260,
      RETORNA = 261,
-     ID = 262,
-     STRING = 263,
-     NUMBER = 264
+     IF = 262,
+     ELSE = 263,
+     ELIF = 264,
+     OLFATEA_HUESO = 265,
+     OLFATEA_CORREA = 266,
+     EQ = 267,
+     NE = 268,
+     LT = 269,
+     LE = 270,
+     GT = 271,
+     GE = 272,
+     ID = 273,
+     STRING = 274,
+     NUMBER = 275
    };
 #endif
 /* Tokens.  */
@@ -53,16 +64,27 @@
 #define CORREA 259
 #define LADRA 260
 #define RETORNA 261
-#define ID 262
-#define STRING 263
-#define NUMBER 264
+#define IF 262
+#define ELSE 263
+#define ELIF 264
+#define OLFATEA_HUESO 265
+#define OLFATEA_CORREA 266
+#define EQ 267
+#define NE 268
+#define LT 269
+#define LE 270
+#define GT 271
+#define GE 272
+#define ID 273
+#define STRING 274
+#define NUMBER 275
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 16 "parser.y"
+#line 17 "parser.y"
 {
     int ival;
     char* sval;
@@ -70,7 +92,7 @@ typedef union YYSTYPE
     void* ptr;
 }
 /* Line 1529 of yacc.c.  */
-#line 74 "parser.tab.h"
+#line 96 "parser.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

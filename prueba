@@ -33,3 +33,9 @@ LADRA(nombre);    // Max (global)
 }
 
 LADRA(energia);                    // 100 (global intacto)
+
+// Entrada tematica (input)
+CORREA nombre_entrada = OLFATEA_CORREA();
+HUESO edad_entrada = OLFATEA_HUESO();
+LADRA(nombre_entrada);
+LADRA(edad_entrada);

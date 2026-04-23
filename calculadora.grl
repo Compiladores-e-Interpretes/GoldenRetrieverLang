@@ -1,0 +1,26 @@
+LADRA("Ingresa el primer numero:");
+HUESO a = OLFATEA_HUESO();
+
+LADRA("Ingresa el segundo numero:");
+HUESO b = OLFATEA_HUESO();
+
+HUESO suma = a + b;
+HUESO resta = a - b;
+HUESO multi = a * b;
+
+LADRA("Suma:");
+LADRA(suma);
+
+LADRA("Resta:");
+LADRA(resta);
+
+LADRA("Multiplicacion:");
+LADRA(multi);
+
+IF (b) {
+    HUESO div = a / b;
+    LADRA("Division:");
+    LADRA(div);
+} ELSE {
+    LADRA("No se puede dividir entre cero");
+}

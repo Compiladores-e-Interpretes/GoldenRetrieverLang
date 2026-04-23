@@ -9,6 +9,7 @@
 
 int yylex(void);
 void yyerror(const char* s);
+extern FILE* yyin;
 
 static ASTNode* g_root = NULL;
 %}
@@ -21,14 +22,19 @@ static ASTNode* g_root = NULL;
 }
 
 %token HUESO CORREA LADRA RETORNA
+%token IF ELSE ELIF
+%token OLFATEA_HUESO OLFATEA_CORREA
+%token EQ NE LT LE GT GE
 %token <sval> ID STRING
 %token <ival> NUMBER
 
 %type <vtype> var_type
-%type <ptr> program statements statement block expr term factor
+%type <ptr> program statements statement block expr comp sum term factor
+%type <ptr> if_stmt elif_chain
 %type <ptr> call_args_opt call_args
 %type <ptr> params_opt params param_decl
 
+%left EQ NE LT LE GT GE
 %left '+' '-'
 %left '*' '/'
 
@@ -78,6 +84,36 @@ statement:
     {
         $$ = ast_make_return((ASTNode*)$2);
     }
+    | if_stmt
+    {
+        $$ = $1;
+    }
+;
+
+if_stmt:
+    IF '(' expr ')' block elif_chain
+    {
+        $$ = ast_make_if((ASTNode*)$3, (ASTNode*)$5, (ASTNode*)$6);
+    }
+;
+
+elif_chain:
+    /* empty */
+    {
+        $$ = NULL;
+    }
+    | ELIF '(' expr ')' block elif_chain
+    {
+        $$ = ast_make_if((ASTNode*)$3, (ASTNode*)$5, (ASTNode*)$6);
+    }
+    | ELSE block
+    {
+        $$ = $2;
+    }
+    | ELSE IF '(' expr ')' block elif_chain
+    {
+        $$ = ast_make_if((ASTNode*)$4, (ASTNode*)$6, (ASTNode*)$7);
+    }
 ;
 
 block:
@@ -124,11 +160,49 @@ param_decl:
 ;
 
 expr:
-    expr '+' term
+    comp
+    {
+        $$ = $1;
+    }
+;
+
+comp:
+    comp EQ sum
+    {
+        $$ = ast_make_binary(OP_EQ, (ASTNode*)$1, (ASTNode*)$3);
+    }
+    | comp NE sum
+    {
+        $$ = ast_make_binary(OP_NE, (ASTNode*)$1, (ASTNode*)$3);
+    }
+    | comp LT sum
+    {
+        $$ = ast_make_binary(OP_LT, (ASTNode*)$1, (ASTNode*)$3);
+    }
+    | comp LE sum
+    {
+        $$ = ast_make_binary(OP_LE, (ASTNode*)$1, (ASTNode*)$3);
+    }
+    | comp GT sum
+    {
+        $$ = ast_make_binary(OP_GT, (ASTNode*)$1, (ASTNode*)$3);
+    }
+    | comp GE sum
+    {
+        $$ = ast_make_binary(OP_GE, (ASTNode*)$1, (ASTNode*)$3);
+    }
+    | sum
+    {
+        $$ = $1;
+    }
+;
+
+sum:
+    sum '+' term
     {
         $$ = ast_make_binary(OP_ADD, (ASTNode*)$1, (ASTNode*)$3);
     }
-    | expr '-' term
+    | sum '-' term
     {
         $$ = ast_make_binary(OP_SUB, (ASTNode*)$1, (ASTNode*)$3);
     }
@@ -161,6 +235,14 @@ factor:
     | STRING
     {
         $$ = ast_make_string($1);
+    }
+    | OLFATEA_HUESO '(' ')'
+    {
+        $$ = ast_make_input(TYPE_INT);
+    }
+    | OLFATEA_CORREA '(' ')'
+    {
+        $$ = ast_make_input(TYPE_STRING);
     }
     | ID
     {
@@ -218,12 +300,23 @@ void yyerror(const char* s) {
     helper_fail("Error de sintaxis");
 }
 
-int main(void) {
+int main(int argc, char** argv) {
     int result;
+    FILE* input = NULL;
 
     if (!init_symbol_stack()) {
         fprintf(stderr, "Error: no se pudo crear el ambito global\n");
         return 1;
+    }
+
+    if (argc > 1) {
+        input = fopen(argv[1], "r");
+        if (input == NULL) {
+            fprintf(stderr, "Error: no se pudo abrir %s\n", argv[1]);
+            cleanup_symbols();
+            return 1;
+        }
+        yyin = input;
     }
 
     result = yyparse();
@@ -231,6 +324,9 @@ int main(void) {
         execute_ast(g_root);
     }
 
+    if (input != NULL) {
+        fclose(input);
+    }
     ast_free(g_root);
     cleanup_symbols();
     return result;
